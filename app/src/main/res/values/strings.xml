@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+
+    <string-array name="search_criteria">
+        <item>Popular</item>
+        <item>Top Rated</item>
+    </string-array>
+    <string name="error_message">An Error has occurred. Please try Again later !!!</string>
+    <string name="title">Movie APP</string>
+
+</resources>
