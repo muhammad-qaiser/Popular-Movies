@@ -1,8 +1,11 @@
 package com.example.sami.popularmovies.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.Serializable;
 
-public class Movie implements Serializable {
+public class Movie implements Parcelable {
 
     private int mVoteCount;
     private int mId;
@@ -38,6 +41,21 @@ public class Movie implements Serializable {
 
     }
 
+    private Movie(Parcel source) {
+        mVoteCount = source.readInt();
+        mId = source.readInt();
+        mHaveVideo = source.readByte()!= 0;
+        mVoteAvg = source.readFloat();
+        mTitle = source.readString();
+        mPopularity = source.readLong();
+        mPosterPath = source.readString();
+        mLanguage = source.readString();
+        mBackdropPath = source.readString();
+        mOverview = source.readString();
+        mReleaseDate = source.readString();
+
+    }
+
     public void setmVoteCount(int voteCount) { this.mVoteCount = voteCount; }
     public int getmVoteCount(){ return this.mVoteCount; }
 
@@ -70,4 +88,38 @@ public class Movie implements Serializable {
 
     public void setmReleaseDate(String releaseDate){this.mReleaseDate = releaseDate;}
     public String getmReleaseDate(){return this.mReleaseDate;}
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+        dest.writeInt(mVoteCount);
+        dest.writeInt(mId);
+        dest.writeByte((byte) (mHaveVideo ? 1 : 0));
+        dest.writeFloat(mVoteAvg);
+        dest.writeString(mTitle);
+        dest.writeLong(mPopularity);
+        dest.writeString(mPosterPath);
+        dest.writeString(mLanguage);
+        dest.writeString(mBackdropPath);
+        dest.writeString(mOverview);
+        dest.writeString(mReleaseDate);
+    }
+
+    public static final Parcelable.Creator<Movie> CREATOR =
+            new Creator<Movie>() {
+                @Override
+                public Movie createFromParcel(Parcel source) {
+                    return new Movie(source);
+                }
+
+                @Override
+                public Movie[] newArray(int size) {
+                    return new Movie[size];
+                }
+            };
 }

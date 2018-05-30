@@ -42,20 +42,19 @@ public class JsonUtils {
         try {
             movie.setmVoteCount(movieObject.getInt("vote_count"));
             movie.setmId(movieObject.getInt("id"));
-            movie.setmHaveVideo(movieObject.getBoolean("video"));
-            movie.setmVoteAvg(Float.valueOf(movieObject.getString("vote_average")));
-            movie.setmTitle(movieObject.getString("title"));
-            movie.setmPopularity(movieObject.getLong("popularity"));
-            movie.setmPosterPath(movieObject.getString("poster_path"));
-            movie.setmLanguage(movieObject.getString("original_language"));
-            movie.setmBackdropPath(movieObject.getString("backdrop_path"));
-            movie.setmOverview(movieObject.getString("overview"));
-            movie.setmReleaseDate(movieObject.getString("release_date"));
+            movie.setmHaveVideo(movieObject.optBoolean("video"));
+            movie.setmVoteAvg(Float.valueOf(movieObject.optString("vote_average")));
+            movie.setmTitle(movieObject.optString("title"));
+            movie.setmPopularity(movieObject.optLong("popularity"));
+            movie.setmPosterPath(movieObject.optString("poster_path"));
+            movie.setmLanguage(movieObject.optString("original_language"));
+            movie.setmBackdropPath(movieObject.optString("backdrop_path"));
+            movie.setmOverview(movieObject.optString("overview"));
+            movie.setmReleaseDate(movieObject.optString("release_date"));
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return movie;
     }
-
 }

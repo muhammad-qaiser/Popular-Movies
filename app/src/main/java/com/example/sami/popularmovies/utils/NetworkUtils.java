@@ -3,6 +3,8 @@ package com.example.sami.popularmovies.utils;
 import android.net.Uri;
 
 
+import com.example.sami.popularmovies.BuildConfig;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -20,7 +22,7 @@ public class NetworkUtils {
 
     //Place your API Key Here.
     //To create one goto  https://www.themoviedb.org/account/signup.
-    private static final String API_KEY = "";
+    private static final String API_KEY = BuildConfig.MOVIEDB_API_KEY;
 
     private static final int POPULAR = 0;
     private static final int TOP_RATED = 1;
@@ -41,9 +43,7 @@ public class NetworkUtils {
                     .appendQueryParameter(PARAM_QUERY, API_KEY)
                     .build();
         }
-
         URL url = null;
-
         try {
             url = new URL(builtUri.toString());
 
@@ -57,10 +57,8 @@ public class NetworkUtils {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
             InputStream in = urlConnection.getInputStream();
-
             Scanner scanner = new Scanner(in);
             scanner.useDelimiter("\\A");
-
             boolean hasInput = scanner.hasNext();
             if (hasInput) {
                 return scanner.next();

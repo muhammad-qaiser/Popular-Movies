@@ -38,11 +38,8 @@ public class DetailActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
         m_iv_voteCountIcon.setImageResource(R.raw.user_icon);
-
-        Movie m = (Movie) getIntent().getSerializableExtra("movieObj");
+        Movie m = (Movie) getIntent().getParcelableExtra("movieObj");
         setDetails(m);
-
-
     }
 
     private void setDetails(Movie movie)
@@ -56,6 +53,5 @@ public class DetailActivity extends AppCompatActivity {
         m_tv_language.setText("Language: " + movie.getmLanguage());
         m_tv_voteCount.setText(String.format(Locale.US,"%,d",movie.getmVoteCount()));
         m_tv_overview.setText(movie.getmOverview());
-
     }
 }

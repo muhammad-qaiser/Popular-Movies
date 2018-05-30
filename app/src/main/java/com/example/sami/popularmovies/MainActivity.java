@@ -2,6 +2,8 @@ package com.example.sami.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,15 +15,12 @@ import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-
 import com.example.sami.popularmovies.model.Movie;
 import com.example.sami.popularmovies.utils.JsonUtils;
 import com.example.sami.popularmovies.utils.NetworkUtils;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -54,17 +53,24 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Lis
         mSpinnerSearch.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                URL url = NetworkUtils.buildUrl(position);
-                new FetchData().execute(url);
+               try{
+                    ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                    boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+                    if(isConnected) {
+                        URL url = NetworkUtils.buildUrl(position);
+                        new FetchData().execute(url);
+                    }
+                    else{
+                        hideViews();
+                    }
+               }
+                catch (Exception e )
+                {e.printStackTrace();}
             }
-
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
+            public void onNothingSelected(AdapterView<?> parent) { }
         });
-
-
     }
 
     //Width of each column.
@@ -115,7 +121,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Lis
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
             m_tv_error.setVisibility(View.INVISIBLE);
             m_pb_loading.setVisibility(View.VISIBLE);
         }
@@ -124,12 +129,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Lis
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             m_pb_loading.setVisibility(View.INVISIBLE);
-
             if(s == null || s.equals(""))
             {
-                mMoviesRV.removeAllViews();
-                mMoviesRV.setVisibility(View.INVISIBLE);
-                m_tv_error.setVisibility(View.VISIBLE);
+                hideViews();
             }
             else {
                 mMoviesList = JsonUtils.parseMovieJson(s);
@@ -137,9 +139,14 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Lis
                 m_tv_error.setVisibility(View.INVISIBLE);
                 loadMovies();
             }
-
         }
     }
 
-
+    void hideViews()
+    {
+        mMoviesRV.removeAllViews();
+        mMoviesRV.setVisibility(View.INVISIBLE);
+        m_tv_error.setVisibility(View.VISIBLE);
+        m_pb_loading.setVisibility(View.INVISIBLE);
+    }
 }
