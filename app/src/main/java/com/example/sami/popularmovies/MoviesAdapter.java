@@ -72,9 +72,12 @@ public class MoviesAdapter  extends RecyclerView.Adapter<MoviesAdapter.MovieView
 
         void bind(Movie  movie)
         {
-            Picasso.get().load(posterPath + movie.getmPosterPath()).fit().into(m_iv_poster);
-            m_tv_language.setText(movie.getmLanguage());
-            m_tv_title.setText(movie.getmTitle());
+            Picasso.get().load(posterPath + movie.mPosterPath).fit()
+                    .error(R.drawable.error)
+                    .placeholder(R.drawable.placeholder)
+                    .into(m_iv_poster);
+            m_tv_language.setText(movie.mLanguage);
+            m_tv_title.setText(movie.mTitle);
         }
 
         @Override
