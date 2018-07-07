@@ -1,19 +1,22 @@
 package com.example.sami.popularmovies.model;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
-
-import static android.content.ComponentName.readFromParcel;
-
+@Entity(tableName = "movie")
 public class Movie implements Parcelable {
+
+    public Movie(){}
 
     @SerializedName("vote_count")
     public int mVoteCount;
 
+    @PrimaryKey
     @SerializedName("id")
     public int mId;
 
@@ -43,10 +46,6 @@ public class Movie implements Parcelable {
 
     @SerializedName("release_date")
     public String mReleaseDate;
-
-
-    public Movie()
-    {}
 
     private Movie(Parcel source) {
         mVoteCount = source.readInt();

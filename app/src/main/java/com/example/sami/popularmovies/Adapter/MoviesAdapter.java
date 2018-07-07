@@ -1,4 +1,4 @@
-package com.example.sami.popularmovies;
+package com.example.sami.popularmovies.Adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.sami.popularmovies.R;
 import com.example.sami.popularmovies.model.Movie;
+import com.example.sami.popularmovies.utils.ListItemClickListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -22,15 +24,15 @@ public class MoviesAdapter  extends RecyclerView.Adapter<MoviesAdapter.MovieView
     final private ListItemClickListener mOnClickListener;
 
 
-    public interface ListItemClickListener{
-        void onListItemClick(int clickedItemIndex);
+    public MoviesAdapter(ListItemClickListener listener)
+    {
+        mOnClickListener = listener;
     }
 
-    public MoviesAdapter(List<Movie> moviesList, ListItemClickListener listener)
-    {
-        mMoviesList = moviesList;
+    public void setMoviesList(List<Movie> moviesList) {
+        this.mMoviesList = moviesList;
         mNumberItems = moviesList.size();
-        mOnClickListener = listener;
+        notifyDataSetChanged();
     }
 
     @NonNull

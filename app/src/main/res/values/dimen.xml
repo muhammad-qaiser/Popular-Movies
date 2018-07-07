@@ -3,6 +3,7 @@
     <dimen name="standardMargin">8dp</dimen>
     <dimen name="standardPadding">8dp</dimen>
     <dimen name="standardTextSize">12sp</dimen>
+    <dimen name="headingTextSize">24sp</dimen>
     <dimen name="listItemTextSize">18sp</dimen>
     <dimen name="appTitleTextSize">30sp</dimen>
     <dimen name="errorMsgTextSize">20sp</dimen>

@@ -2,9 +2,9 @@ package com.example.sami.popularmovies.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
+import java.util.ArrayList;
 
-public class ApiResponse {
+public class MoviesList {
 
     @SerializedName("page")
     public int mPage;
@@ -16,6 +16,11 @@ public class ApiResponse {
     public int mTotalPages;
 
     @SerializedName("results")
-    public List<Movie> mMoviesResposeList;
+    public ArrayList<Movie> mMoviesResponseList;
+
+    public ArrayList<Movie> getMovies()
+    {
+        return mMoviesResponseList;
+    }
 }
 

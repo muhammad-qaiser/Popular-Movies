@@ -4,8 +4,11 @@
     <string-array name="search_criteria">
         <item>Popular</item>
         <item>Top Rated</item>
+        <item>Favourite</item>
     </string-array>
     <string name="error_message">An Error has occurred. Please try Again later !!!</string>
     <string name="title">Movie APP</string>
+    <string name="trailer">Trailer</string>
+    <string name="reviews">Reviews</string>
 
 </resources>
