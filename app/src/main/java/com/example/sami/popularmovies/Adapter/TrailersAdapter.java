@@ -66,6 +66,7 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.Traile
             m_tv_trailerName = itemView.findViewById(R.id.tvTrailerName);
             m_tv_trailerType = itemView.findViewById(R.id.tvTrailerType);
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
 
         void bind(Trailer trailer)
@@ -83,7 +84,7 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.Traile
         @Override
         public void onClick(View v) {
             int clickedPosition = getAdapterPosition();
-            mOnClickListener.onLongClick(clickedPosition);
+            mOnClickListener.onListItemClick(clickedPosition);
         }
 
 
@@ -91,7 +92,7 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.Traile
         public boolean onLongClick(View v) {
             int clickedPosition = getAdapterPosition();
             mOnClickListener.onLongClick(clickedPosition);
-            return false;
+            return true;
         }
     }
 }

@@ -64,6 +64,8 @@ public class DetailActivity extends AppCompatActivity implements ListItemClickLi
     ArrayList<Review> mReviewList;
     private final int REVIEW = 1;
     private final int TRAILER = 2;
+    private final String MOVIE_OBJECT_EXTRA = "movieObj";
+    private final String IS_FAVORITE_EXTRA = "isFavorite";
     private Movie mMovie;
     private AppDatabase mDatabase;
     private AppExecutors mAppExecutors;
@@ -87,8 +89,8 @@ public class DetailActivity extends AppCompatActivity implements ListItemClickLi
         m_rv_review.setHasFixedSize(true);
 
         m_iv_voteCountIcon.setImageResource(R.raw.user_icon);
-        mMovie = getIntent().getParcelableExtra("movieObj");
-        mIsFavorite = getIntent().getBooleanExtra("isFavorite",false);
+        mMovie = getIntent().getParcelableExtra(MOVIE_OBJECT_EXTRA);
+        mIsFavorite = getIntent().getBooleanExtra(IS_FAVORITE_EXTRA,false);
 
         setDetails();
     }
@@ -103,8 +105,8 @@ public class DetailActivity extends AppCompatActivity implements ListItemClickLi
         m_tv_ratings.setText(String.format(Locale.US,"%.1f",mMovie.mVoteAvg/2));
         m_ratingBar.setRating(mMovie.mVoteAvg/2);
         m_tv_title.setText(mMovie.mTitle);
-        m_iv_releaseDate.setText("Release Date: " + mMovie.mReleaseDate);
-        m_tv_language.setText("Language: " + mMovie.mLanguage);
+        m_iv_releaseDate.setText(R.string.releaseDate + mMovie.mReleaseDate);
+        m_tv_language.setText(R.string.language + mMovie.mLanguage);
         m_tv_voteCount.setText(String.format(Locale.US,"%,d",mMovie.mVoteCount));
         m_tv_overview.setText(mMovie.mOverview);
         loadTrailer(mMovie.mId);
@@ -118,16 +120,16 @@ public class DetailActivity extends AppCompatActivity implements ListItemClickLi
         if(adapter.getItemCount() == 0)
         {
             if(type == REVIEW)
-                m_tv_review.setText("No Review Yet..");
+                m_tv_review.setText(R.string.noReviews);
             else
-                m_tv_trailer.setText("No Trailer Yet");
+                m_tv_trailer.setText(R.string.noTrailers);
         }
         else
         {
             if(type == REVIEW)
-                m_tv_review.setText("Reviews");
+                m_tv_review.setText(R.string.reviews);
             else
-                m_tv_trailer.setText("Trailer");
+                m_tv_trailer.setText(R.string.trailer);
         }
     }
     private void loadReviews(int id)

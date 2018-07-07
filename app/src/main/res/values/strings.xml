@@ -10,5 +10,9 @@
     <string name="title">Movie APP</string>
     <string name="trailer">Trailer</string>
     <string name="reviews">Reviews</string>
+    <string name="noReviews">No Reviews Yet</string>
+    <string name="noTrailers">No Trailers Yet</string>
+    <string name="releaseDate">Release Date: </string>
+    <string name="language">Language: </string>
 
 </resources>

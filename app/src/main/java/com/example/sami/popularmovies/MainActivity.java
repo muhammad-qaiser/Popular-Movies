@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -33,6 +34,7 @@ import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements ListItemClickListener {
 
@@ -41,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
     private static final int FAVOURITE = 2;
     private static final String POPULARSTR = "popular";
     private static final String TOPRATEDSTR = "top_rated";
+    private final String KEY_RECYCLER_STATE = "recycler_state";
+    private final String MOVIE_OBJECT_EXTRA = "movieObj";
+    private final String IS_FAVORITE_EXTRA = "isFavorite";
 
     @BindView(R.id.movies_rv) RecyclerView mMoviesRV;
     @BindView (R.id.tv_error_message_display) TextView m_tv_error;
@@ -53,10 +58,10 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
     AppDatabase mDatabase;
     MoviesAdapter mMoviesAdapter;
 
-
     //Width of each column.
     private static final int COLUMN_WIDTH = 140;
 
+    public static Bundle mRecycleryViewStateBundle;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +73,9 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
         initializerBuilder.enableWebKitInspector(Stetho.defaultInspectorModulesProvider(getApplicationContext()));
         Stetho.Initializer initializer = initializerBuilder.build();
         Stetho.initialize(initializer);
+
+        //Timber
+        Timber.plant(new Timber.DebugTree());
 
         mDatabase = AppDatabase.getInstance(this);
 
@@ -90,6 +98,24 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
         });
 
         favoriteMovieVMInit();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mRecycleryViewStateBundle = new Bundle();
+        Parcelable listState = mMoviesRV.getLayoutManager().onSaveInstanceState();
+        mRecycleryViewStateBundle.putParcelable(KEY_RECYCLER_STATE , listState);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(mRecycleryViewStateBundle != null)
+        {
+            Parcelable listState = mRecycleryViewStateBundle.getParcelable(KEY_RECYCLER_STATE);
+            mMoviesRV.getLayoutManager().onRestoreInstanceState(listState);
+        }
     }
 
     public void favoriteMovieVMInit()
@@ -172,8 +198,8 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
         {
             Intent intent = new Intent(this, DetailActivity.class);
             Movie m = mMoviesList.get(clickedItemIndex);
-            intent.putExtra("movieObj", m);
-            intent.putExtra("isFavorite" , isMovieFavorite(m));
+            intent.putExtra(MOVIE_OBJECT_EXTRA, m);
+            intent.putExtra(IS_FAVORITE_EXTRA , isMovieFavorite(m));
             startActivity(intent);
         }
     }
