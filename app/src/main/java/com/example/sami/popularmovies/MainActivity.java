@@ -36,16 +36,19 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import timber.log.Timber;
 
-public class MainActivity extends AppCompatActivity implements ListItemClickListener {
+public class MainActivity extends AppCompatActivity implements ListItemClickListener, AdapterView.OnItemSelectedListener {
 
     private static final int POPULAR = 0;
     private static final int TOP_RATED = 1;
     private static final int FAVOURITE = 2;
     private static final String POPULARSTR = "popular";
     private static final String TOPRATEDSTR = "top_rated";
-    private final String KEY_RECYCLER_STATE = "recycler_state";
     private final String MOVIE_OBJECT_EXTRA = "movieObj";
     private final String IS_FAVORITE_EXTRA = "isFavorite";
+
+    private final String KEY_MOVIE_STATE = "movieState";
+    private static Parcelable mListState;
+    private GridLayoutManager mLayoutManager;
 
     @BindView(R.id.movies_rv) RecyclerView mMoviesRV;
     @BindView (R.id.tv_error_message_display) TextView m_tv_error;
@@ -53,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
     @BindView(R.id.spinner) Spinner mSpinnerSearch;
 
     //To Store list of movies fetched from MovieDB
-    List<Movie> mMoviesList;
+    private static List<Movie> mMoviesList;
     private static List<Movie> mFavMovies;
     AppDatabase mDatabase;
     MoviesAdapter mMoviesAdapter;
@@ -61,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
     //Width of each column.
     private static final int COLUMN_WIDTH = 140;
 
-    public static Bundle mRecycleryViewStateBundle;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,44 +80,42 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
         Timber.plant(new Timber.DebugTree());
 
         mDatabase = AppDatabase.getInstance(this);
-
-        GridLayoutManager layoutManager = new GridLayoutManager(MainActivity.this
-                ,calculateNoOfColumns(getApplicationContext()));
-        mMoviesRV.setLayoutManager(layoutManager);
-        mMoviesRV.setHasFixedSize(true);
+        mLayoutManager = new GridLayoutManager(this
+                ,calculateNoOfColumns(this));
+        mMoviesRV.setLayoutManager(mLayoutManager);
         mMoviesAdapter = new MoviesAdapter(MainActivity.this);
         mMoviesRV.setAdapter(mMoviesAdapter);
 
+
         //Default spinner Position;
         mSpinnerSearch.setSelection(POPULAR);
-        mSpinnerSearch.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                onSpinnerItemSelect(position);
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
-        });
+        mSpinnerSearch.setOnItemSelectedListener(this);
 
-        favoriteMovieVMInit();
+        if(savedInstanceState == null) {
+            loadMovies();
+            favoriteMovieVMInit();
+        }
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        mRecycleryViewStateBundle = new Bundle();
-        Parcelable listState = mMoviesRV.getLayoutManager().onSaveInstanceState();
-        mRecycleryViewStateBundle.putParcelable(KEY_RECYCLER_STATE , listState);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mListState = mLayoutManager.onSaveInstanceState();
+        outState.putParcelable(KEY_MOVIE_STATE, mListState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if(mListState!= null )
+            mListState = savedInstanceState.getParcelable(KEY_MOVIE_STATE);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(mRecycleryViewStateBundle != null)
-        {
-            Parcelable listState = mRecycleryViewStateBundle.getParcelable(KEY_RECYCLER_STATE);
-            mMoviesRV.getLayoutManager().onRestoreInstanceState(listState);
-        }
+        if(mListState != null)
+            mLayoutManager.onRestoreInstanceState(mListState);
     }
 
     public void favoriteMovieVMInit()
@@ -125,16 +125,17 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
         viewModel.getAllMovies().observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(List<Movie> movies) {
-                 mFavMovies = movies;
-                 if(mSpinnerSearch.getSelectedItemPosition() == FAVOURITE) {
-                     mMoviesList = movies;
-                     mMoviesAdapter.setMoviesList(mMoviesList);
-                 }
+                mFavMovies = movies;
+                if(mSpinnerSearch.getSelectedItemPosition() == FAVOURITE) {
+                    mMoviesList = movies;
+                    mMoviesAdapter.setMoviesList(mMoviesList);
+                }
             }
         });
     }
-    private void onSpinnerItemSelect(int position)
+    private void loadMovies()
     {
+        int position = mSpinnerSearch.getSelectedItemPosition();
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
@@ -224,8 +225,17 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
             Movie m = mFavMovies.get(i);
             if (m.mId == movie.mId && m.mTitle.equals(movie.mTitle) && m.mLanguage.equals(movie.mLanguage))
                 return true;
-
         }
         return false;
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        loadMovies();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }
