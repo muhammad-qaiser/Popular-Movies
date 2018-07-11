@@ -28,6 +28,7 @@ import com.example.sami.popularmovies.utils.MoviesClient;
 import com.example.sami.popularmovies.utils.RetrofitClient;
 import com.facebook.stetho.Stetho;
 
+import java.util.ArrayList;
 import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -47,8 +48,10 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
     private final String IS_FAVORITE_EXTRA = "isFavorite";
 
     private final String KEY_MOVIE_STATE = "movieState";
+    private final String KEY_LIST_STATE = "movieListState";
+
     private static Parcelable mListState;
-    private GridLayoutManager mLayoutManager;
+    private static GridLayoutManager mLayoutManager;
 
     @BindView(R.id.movies_rv) RecyclerView mMoviesRV;
     @BindView (R.id.tv_error_message_display) TextView m_tv_error;
@@ -86,13 +89,10 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
         mMoviesAdapter = new MoviesAdapter(MainActivity.this);
         mMoviesRV.setAdapter(mMoviesAdapter);
 
-
         //Default spinner Position;
-        mSpinnerSearch.setSelection(POPULAR);
         mSpinnerSearch.setOnItemSelectedListener(this);
 
         if(savedInstanceState == null) {
-            loadMovies();
             favoriteMovieVMInit();
         }
     }
@@ -102,20 +102,26 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
         super.onSaveInstanceState(outState);
         mListState = mLayoutManager.onSaveInstanceState();
         outState.putParcelable(KEY_MOVIE_STATE, mListState);
+        outState.putParcelableArrayList(KEY_LIST_STATE , (ArrayList<Movie>) mMoviesList);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        if(mListState!= null )
+        if(mListState!= null ) {
             mListState = savedInstanceState.getParcelable(KEY_MOVIE_STATE);
+            mMoviesList = savedInstanceState.getParcelableArrayList(KEY_LIST_STATE);
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(mListState != null)
+        if(mListState != null) {
+            mMoviesAdapter.setMoviesList(mMoviesList);
             mLayoutManager.onRestoreInstanceState(mListState);
+            mMoviesRV.setLayoutManager(mLayoutManager);
+        }
     }
 
     public void favoriteMovieVMInit()
@@ -144,11 +150,7 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
         switch (position)
         {
             case FAVOURITE:
-                m_pb_loading.setVisibility(View.INVISIBLE);
-                mMoviesList = mFavMovies;
-                mMoviesRV.setVisibility(View.VISIBLE);
-                m_tv_error.setVisibility(View.INVISIBLE);
-                mMoviesAdapter.setMoviesList(mMoviesList);
+                showViews(mFavMovies);
                 return;
             case TOP_RATED:
                 type = TOPRATEDSTR;
@@ -159,18 +161,13 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
         }
         if(isConnected) {
             Call<MoviesList> moviesListCall = client.movies(type, BuildConfig.MOVIEDB_API_KEY);
-
             m_tv_error.setVisibility(View.INVISIBLE);
             m_pb_loading.setVisibility(View.VISIBLE);
-
             moviesListCall.enqueue(new Callback<MoviesList>() {
                 @Override
                 public void onResponse(Call<MoviesList> call, Response<MoviesList> response) {
-                    m_pb_loading.setVisibility(View.INVISIBLE);
-                    mMoviesList = response.body().getMovies();
-                    mMoviesRV.setVisibility(View.VISIBLE);
-                    m_tv_error.setVisibility(View.INVISIBLE);
-                    mMoviesAdapter.setMoviesList(mMoviesList);
+                    List<Movie> list = response.body().getMovies();
+                    showViews(list);
                 }
 
                 @Override
@@ -183,6 +180,14 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
         {
             hideViews();
         }
+    }
+
+    public void showViews(List<Movie> list)
+    {
+        mMoviesList = list;
+        mMoviesAdapter.setMoviesList(mMoviesList);
+        m_tv_error.setVisibility(View.INVISIBLE);
+        m_pb_loading.setVisibility(View.INVISIBLE);
     }
 
     //Calculate the number of columns that can be created on the screen.
@@ -206,9 +211,7 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
     }
 
     @Override
-    public void onLongClick (int clickedItemIndex) {
-
-    }
+    public void onLongClick (int clickedItemIndex) {}
 
     void hideViews()
     {
