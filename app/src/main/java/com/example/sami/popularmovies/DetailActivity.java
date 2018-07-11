@@ -66,10 +66,10 @@ public class DetailActivity extends AppCompatActivity implements ListItemClickLi
     private final int TRAILER = 2;
     private final String MOVIE_OBJECT_EXTRA = "movieObj";
     private final String IS_FAVORITE_EXTRA = "isFavorite";
-    private Movie mMovie;
+    private static Movie mMovie;
     private AppDatabase mDatabase;
     private AppExecutors mAppExecutors;
-    private boolean mIsFavorite;
+    private static boolean mIsFavorite;
     @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,8 +89,10 @@ public class DetailActivity extends AppCompatActivity implements ListItemClickLi
         m_rv_review.setHasFixedSize(true);
 
         m_iv_voteCountIcon.setImageResource(R.raw.user_icon);
-        mMovie = getIntent().getParcelableExtra(MOVIE_OBJECT_EXTRA);
-        mIsFavorite = getIntent().getBooleanExtra(IS_FAVORITE_EXTRA,false);
+        if(savedInstanceState == null) {
+            mMovie = getIntent().getParcelableExtra(MOVIE_OBJECT_EXTRA);
+            mIsFavorite = getIntent().getBooleanExtra(IS_FAVORITE_EXTRA, false);
+        }
 
         setDetails();
     }
@@ -171,7 +173,7 @@ public class DetailActivity extends AppCompatActivity implements ListItemClickLi
         });
     }
     public void toggleFavorite(View view) {
-        initFavorite(!mIsFavorite);
+        m_ib_favorite.setEnabled(false);
         mAppExecutors.diskIO().execute(new Runnable() {
             @Override
             public void run() {
@@ -182,6 +184,8 @@ public class DetailActivity extends AppCompatActivity implements ListItemClickLi
                     mDatabase.movieDao().insertMovie(mMovie);
                 }
                 mIsFavorite = !mIsFavorite;
+                m_ib_favorite.setEnabled(true);
+                initFavorite(mIsFavorite);
             }
         });
     }

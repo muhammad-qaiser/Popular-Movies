@@ -92,9 +92,7 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
         //Default spinner Position;
         mSpinnerSearch.setOnItemSelectedListener(this);
 
-        if(savedInstanceState == null) {
-            favoriteMovieVMInit();
-        }
+        favoriteMovieVMInit();
     }
 
     @Override
